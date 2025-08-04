@@ -1,0 +1,166 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Studio API",
+    "description": "API for creating transcription and translation projects with file URLs.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.studio.us.phrase.com",
+      "description": "US Environment"
+    },
+    {
+      "url": "https://api.studio.eu.phrase.com",
+      "description": "EU Environment"
+    }
+  ],
+  "paths": {
+    "/v1/projects": {
+      "post": {
+        "summary": "Create Project",
+        "description": "The Create Project API allows you to programmatically create transcription and translation projects using file URLs. The API handles file downloading, processing, cost calculation, and project creation automatically.",
+        "operationId": "createProject",
+        "security": [
+          { "bearerAuth": [] },
+          { "apiKeyAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Project title",
+                    "example": "Meeting Recording"
+                  },
+                  "files": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 5,
+                    "description": "Array of files to process",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "Publicly accessible file URL",
+                          "example": "https://example.com/video.mp4"
+                        },
+                        "filename": {
+                          "type": "string",
+                          "description": "Optional filename override",
+                          "example": "conference-recording.mp4"
+                        }
+                      },
+                      "required": ["url"]
+                    }
+                  },
+                  "sourceLanguage": {
+                    "type": "string",
+                    "description": "Source language code. Use \"auto\" to auto-detect source language.",
+                    "default": "auto",
+                    "example": "en"
+                  },
+                  "translationLanguages": {
+                    "type": "array",
+                    "description": "Target translation language codes",
+                    "items": {
+                      "type": "string",
+                      "example": "tr"
+                    }
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "dubbingLanguages": {
+                        "type": "array",
+                        "description": "Dubbing languages. Must also be included in translationLanguages to ensure translation before dubbing.",
+                        "items": {
+                          "type": "string",
+                          "example": "es"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": ["title", "files"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Created project ID",
+                      "example": "01jzmvc20cjq5hj5saa96ttp2x"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request (invalid input)",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "no_files": {
+                    "summary": "No files provided",
+                    "value": { "statusCode": 400, "message": "There are no files" }
+                  },
+                  "too_many_files": {
+                    "summary": "Too many files",
+                    "value": { "statusCode": 400, "message": "Maximum 5 files allowed. You currently have 7 file(s)." }
+                  },
+                  "invalid_format": {
+                    "summary": "Unsupported file format",
+                    "value": { "statusCode": 400, "message": "Unsupported file format. Only MP3, WAV, M4A, MP4, and MOV files are allowed." }
+                  },
+                  "too_large": {
+                    "summary": "File too large",
+                    "value": { "statusCode": 400, "message": "File size cannot exceed 5GB." }
+                  },
+                  "too_long": {
+                    "summary": "File too long",
+                    "value": { "statusCode": 400, "message": "File duration cannot exceed 180 minutes." }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (invalid API key)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  }
+}
