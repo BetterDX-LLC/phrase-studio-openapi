@@ -2,29 +2,30 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Studio API",
-    "description": "API for creating transcription and translation projects with file URLs.",
+    "description": "API for creating transcription, translation, and dubbing projects with file URLs.",
     "version": "1.0.0"
   },
   "servers": [
     {
       "url": "https://api.studio.us.phrase.com",
-      "description": "US Environment"
+      "description": "Production US Environment"
     },
     {
       "url": "https://api.studio.eu.phrase.com",
-      "description": "EU Environment"
+      "description": "Production EU Environment"
+    },
+    {
+      "url": "https://api.studio.us.phrase-staging.com",
+      "description": "Stage US Environment"
     }
   ],
   "paths": {
     "/v1/projects": {
       "post": {
         "summary": "Create Project",
-        "description": "The Create Project API allows you to programmatically create transcription and translation projects using file URLs. The API handles file downloading, processing, cost calculation, and project creation automatically.",
+        "description": "The Create Project API allows you to programmatically create transcription, translation, and dubbing projects using file URLs. The API handles file downloading, processing, cost calculation, and project creation automatically.",
         "operationId": "createProject",
-        "security": [
-          { "bearerAuth": [] },
-          { "apiKeyAuth": [] }
-        ],
+        "security": [{ "bearerAuth": [] }, { "apiKeyAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -118,23 +119,38 @@
                 "examples": {
                   "no_files": {
                     "summary": "No files provided",
-                    "value": { "statusCode": 400, "message": "There are no files" }
+                    "value": {
+                      "statusCode": 400,
+                      "message": "There are no files"
+                    }
                   },
                   "too_many_files": {
                     "summary": "Too many files",
-                    "value": { "statusCode": 400, "message": "Maximum 5 files allowed. You currently have 7 file(s)." }
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Maximum 5 files allowed. You currently have 7 file(s)."
+                    }
                   },
                   "invalid_format": {
                     "summary": "Unsupported file format",
-                    "value": { "statusCode": 400, "message": "Unsupported file format. Only MP3, WAV, M4A, MP4, and MOV files are allowed." }
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Unsupported file format. Only MP3, WAV, M4A, MP4, and MOV files are allowed."
+                    }
                   },
                   "too_large": {
                     "summary": "File too large",
-                    "value": { "statusCode": 400, "message": "File size cannot exceed 5GB." }
+                    "value": {
+                      "statusCode": 400,
+                      "message": "File size cannot exceed 5GB."
+                    }
                   },
                   "too_long": {
                     "summary": "File too long",
-                    "value": { "statusCode": 400, "message": "File duration cannot exceed 180 minutes." }
+                    "value": {
+                      "statusCode": 400,
+                      "message": "File duration cannot exceed 180 minutes."
+                    }
                   }
                 }
               }
